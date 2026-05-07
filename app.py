@@ -1,9 +1,11 @@
 import streamlit as st
 import requests
+import os
 
 st.title("🤖 Online AI Chatbot")
 
-API_KEY = st.secrets["OPENROUTER_API_KEY"]
+# Read API key from Render environment variable
+API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 url = "https://openrouter.ai/api/v1/chat/completions"
 
