@@ -4,7 +4,6 @@ import os
 
 st.title("🤖 Online AI Chatbot")
 
-# Read API key from Render environment variable
 API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 url = "https://openrouter.ai/api/v1/chat/completions"
@@ -19,7 +18,7 @@ user_input = st.text_input("Ask something:")
 if user_input:
 
     payload = {
-        "model": "mistralai/mistral-7b-instruct",
+        "model": "openchat/openchat-7b",
         "messages": [
             {"role": "user", "content": user_input}
         ]
@@ -33,4 +32,4 @@ if user_input:
         answer = data["choices"][0]["message"]["content"]
         st.write("🤖 Answer:", answer)
     except:
-        st.write("⚠️ Error:", data)
+        st.write(data)
