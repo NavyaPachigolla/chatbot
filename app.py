@@ -1,51 +1,34 @@
 import streamlit as st
-from langchain_community.llms import Ollama
-import PyPDF2
+import requests
 
-st.set_page_config(page_title="Dual Chatbot", layout="wide")
-st.title("🤖 Dual Chatbot (Final Working)")
+st.title("🤖 Online AI Chatbot")
 
-# Load local model
-llm = Ollama(model="llama3")
+API_KEY = st.secrets["OPENROUTER_API_KEY"]
 
-# Mode selection
-mode = st.radio("Choose Mode:", ["Normal Chat", "Document Chat"])
+url = "https://openrouter.ai/api/v1/chat/completions"
 
-# ================= NORMAL CHAT =================
-if mode == "Normal Chat":
-    st.subheader("💬 Normal Chatbot")
+headers = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Content-Type": "application/json"
+}
 
-    query = st.text_input("Ask anything:")
+user_input = st.text_input("Ask something:")
 
-    if query:
-        response = llm.invoke(query)
-        st.write("🤖 Answer:", response)
+if user_input:
 
-# ================= DOCUMENT CHAT =================
-elif mode == "Document Chat":
-    st.subheader("📄 Document Chatbot")
+    payload = {
+        "model": "mistralai/mistral-7b-instruct",
+        "messages": [
+            {"role": "user", "content": user_input}
+        ]
+    }
 
-    uploaded_file = st.file_uploader("Upload a PDF", type="pdf")
+    response = requests.post(url, headers=headers, json=payload)
 
-    if uploaded_file:
-        pdf_reader = PyPDF2.PdfReader(uploaded_file)
+    data = response.json()
 
-        text = ""
-        for page in pdf_reader.pages:
-            text += page.extract_text()
-
-        query = st.text_input("Ask question from document:")
-
-        if query:
-            prompt = f"""
-            Answer the question based only on the document below.
-
-            Document:
-            {text}
-
-            Question:
-            {query}
-            """
-
-            response = llm.invoke(prompt)
-            st.write("📄 Answer:", response)
+    try:
+        answer = data["choices"][0]["message"]["content"]
+        st.write("🤖 Answer:", answer)
+    except:
+        st.write("⚠️ Error:", data)
